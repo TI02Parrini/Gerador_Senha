@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gerador de Senhas (12 chars)</title>
+  <style>
+    :root{
+      --bg: #0f172a;          /* slate-900 */
+      --panel: #111827cc;     /* gray-900 with alpha */
+      --text: #e5e7eb;        /* gray-200 */
+      --muted:#9ca3af;        /* gray-400 */
+      --accent:#22d3ee;       /* cyan-400 */
+      --accent-2:#a78bfa;     /* violet-400 */
+      --ok:#34d399;           /* emerald-400 */
+      --warn:#fb7185;         /* rose-400 */
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100dvh; display:grid; place-items:center; 
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color:var(--text);
+      background: radial-gradient(1200px 600px at 10% 0%, #0b1022 0, #0f172a 40%, #0b1022 100%),
+                  conic-gradient(from 180deg at 70% 10%, #0f172a, #0e1226);
+    }
+    .card{
+      width:min(720px, 92vw);
+      background:linear-gradient(180deg, #121826cc, #0b1020cc);
+      border:1px solid #1f2937; /* gray-800 */
+      border-radius:24px; padding:28px; position:relative; overflow:hidden;
+      box-shadow: 0 10px 30px #00000066, inset 0 0 0 1px #ffffff08;
+      backdrop-filter: blur(6px);
+    }
+    .title{
+      display:flex; align-items:center; gap:12px; margin:0 0 14px 0;
+      font-size: clamp(18px, 2vw, 22px); font-weight:700; letter-spacing:.3px;
+    }
+    .title .badge{
+      font-size:12px; font-weight:700; color:#0b1020; background:linear-gradient(90deg, var(--accent), var(--accent-2));
+      padding:6px 10px; border-radius:999px; border:1px solid #0003; box-shadow: inset 0 0 0 1px #fff5;
+    }
+    .desc{color:var(--muted); line-height:1.5; margin-bottom:16px}
+
+    .row{display:flex; gap:12px; flex-wrap:wrap; align-items:center}
+
+    .output{
+      flex:1 1 380px; display:flex; align-items:center; gap:10px; 
+      background:#0b1220; border:1px solid #1f2937; border-radius:16px; padding:12px 14px;
+    }
+    .output input{
+      flex:1; background:transparent; border:none; outline:none; color:var(--text);
+      font: 700 20px/1.2 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      letter-spacing: .8px;
+    }
+    .btn{
+      appearance:none; border:none; cursor:pointer; user-select:none;
+      background:linear-gradient(180deg, #192033, #0c1222);
+      color:var(--text); padding:12px 16px; border-radius:14px; 
+      border:1px solid #27324a; box-shadow: 0 2px 0 #0008, inset 0 0 0 1px #ffffff0a;
+      font-weight:700; letter-spacing:.3px;
+      transition: transform .06s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    .btn:hover{border-color:#3b82f6}
+    .btn:active{transform: translateY(1px)}
+
+    .btn-accent{background:linear-gradient(90deg, #1fb8ff, #8a5bff)}
+
+    .status{display:flex; align-items:center; gap:8px; margin-top:12px; min-height:24px}
+    .dot{width:8px; height:8px; border-radius:50%}
+    .dot.ok{background:var(--ok)}
+    .dot.warn{background:var(--warn)}
+    .muted{color:var(--muted); font-size:14px}
+
+    .tips{margin-top:16px; font-size:13px; color:#cbd5e1}
+    .tips code{background:#0b1220; border:1px solid #1f2937; padding:2px 6px; border-radius:8px}
+
+    .footer{margin-top:16px; display:flex; gap:8px; flex-wrap:wrap}
+    .k{font:600 12px/1 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono"}
+  </style>
+</head>
+<body>
+  <main class="card" role="region" aria-labelledby="titulo">
+    <h1 id="titulo" class="title">
+      🔐 Gerador de Senhas
+      <span class="badge" aria-label="Requisito">12 caracteres</span>
+      <span class="badge" aria-label="Política">Aa 0 !</span>
+    </h1>
+    <p class="desc">Gera uma senha com <strong>12 caracteres</strong> contendo pelo menos: <strong>1 maiúscula</strong>, <strong>1 minúscula</strong>, <strong>1 número</strong> e <strong>1 caractere especial</strong>. Usa gerador criptograficamente seguro (<code>crypto.getRandomValues</code>).</p>
+
+    <div class="row" role="group" aria-label="Gerar e copiar senha">
+      <div class="output" aria-live="polite">
+        <input id="password" type="text" inputmode="none" aria-label="Senha gerada" readonly>
+        <button id="copyBtn" class="btn" title="Copiar">Copiar</button>
+      </div>
+      <button id="genBtn" class="btn btn-accent" title="Gerar nova senha">Gerar nova</button>
+    </div>
+
+    <div class="status" id="statusBox" aria-live="polite"></div>
+
+    <p class="tips">Requisitos aplicados: <code>minúscula [a–z]</code>, <code>maiúscula [A–Z]</code>, <code>dígito [0–9]</code>, <code>especial [!@#$%^&*()-_=+[]{};:,.?]</code>. O restante é preenchido com mistura aleatória.
+    </p>
+
+    <div class="footer">
+      <span class="k muted">Dica: clique em <strong>Gerar nova</strong> até gostar da combinação, depois use <strong>Copiar</strong>.</span>
+    </div>
+  </main>
+
+  <script>
+    (function(){
+      const UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const LOWER = "abcdefghijklmnopqrstuvwxyz";
+      const DIGIT = "0123456789";
+      const SPECIAL = "!@#$%^&*()-_=+[]{};:,.?";
+      const ALL = UPPER + LOWER + DIGIT + SPECIAL;
+      const LENGTH = 12; // conforme requisito
+
+      const $pwd = document.getElementById('password');
+      const $copy = document.getElementById('copyBtn');
+      const $gen = document.getElementById('genBtn');
+      const $status = document.getElementById('statusBox');
+
+      // Gera inteiro aleatório [0, max) sem viés de módulo, usando crypto
+      function secureRandomInt(max){
+        if (!window.crypto || !window.crypto.getRandomValues) {
+          // fallback não-criptográfico (raro), ainda assim funcional
+          return Math.floor(Math.random() * max);
+        }
+        const maxUint = 0xFFFFFFFF; // 2^32-1
+        const limit = Math.floor(maxUint / max) * max; // rejeição para eliminar viés
+        const buf = new Uint32Array(1);
+        let x;
+        do {
+          crypto.getRandomValues(buf);
+          x = buf[0];
+        } while (x >= limit);
+        return x % max;
+      }
+
+      function pick(set){
+        return set[secureRandomInt(set.length)];
+      }
+
+      function shuffle(array){
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = secureRandomInt(i + 1);
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
+
+      function generatePassword(){
+        const chars = [];
+        // Garante pelo menos um de cada classe
+        chars.push(pick(UPPER));
+        chars.push(pick(LOWER));
+        chars.push(pick(DIGIT));
+        chars.push(pick(SPECIAL));
+        // Preenche o restante
+        for (let i = chars.length; i < LENGTH; i++) {
+          chars.push(pick(ALL));
+        }
+        // Embaralha para não fixar padrões de posição
+        shuffle(chars);
+        const pwd = chars.join('');
+        return pwd;
+      }
+
+      function validate(pwd){
+        const ok = /[A-Z]/.test(pwd) && /[a-z]/.test(pwd) && /\d/.test(pwd) && /[!@#$%^&*()\-_=+\[\]{};:,.?]/.test(pwd) && pwd.length === LENGTH;
+        return ok;
+      }
+
+      function renderStatus(ok){
+        $status.innerHTML = '';
+        const dot = document.createElement('span');
+        dot.className = 'dot ' + (ok ? 'ok' : 'warn');
+        const msg = document.createElement('span');
+        msg.className = 'muted';
+        msg.textContent = ok ? 'Senha atende aos requisitos.' : 'Gere novamente: faltam requisitos.';
+        $status.append(dot, msg);
+      }
+
+      function setPassword(pwd){
+        $pwd.value = pwd;
+        renderStatus(validate(pwd));
+      }
+
+      async function copy(){
+        try{
+          await navigator.clipboard.writeText($pwd.value);
+          const old = $copy.textContent;
+          $copy.textContent = 'Copiado!';
+          setTimeout(()=>{ $copy.textContent = old; }, 1200);
+        }catch(e){
+          // fallback simples
+          $pwd.select(); document.execCommand('copy');
+          const old = $copy.textContent;
+          $copy.textContent = 'Copiado!';
+          setTimeout(()=>{ $copy.textContent = old; }, 1200);
+        }
+      }
+
+      $gen.addEventListener('click', ()=> setPassword(generatePassword()));
+      $copy.addEventListener('click', copy);
+
+      // Gera automaticamente na abertura
+      setPassword(generatePassword());
+    })();
+  </script>
+</body>
+</html>
