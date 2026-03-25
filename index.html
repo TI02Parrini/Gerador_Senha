@@ -82,10 +82,10 @@
   <main class="card" role="region" aria-labelledby="titulo">
     <h1 id="titulo" class="title">
       🔐 Gerador de Senhas
-      <span class="badge" aria-label="Requisito">12 caracteres</span>
+      <span class="badge" aria-label="Requisito">18 caracteres</span>
       <span class="badge" aria-label="Política">Aa 0 !</span>
     </h1>
-    <p class="desc">Gera uma senha com <strong>12 caracteres</strong> contendo pelo menos: <strong>1 maiúscula</strong>, <strong>1 minúscula</strong>, <strong>1 número</strong> e <strong>1 caractere especial</strong>. Usa gerador criptograficamente seguro (<code>crypto.getRandomValues</code>).</p>
+    <p class="desc">Gera uma senha com <strong>18 caracteres</strong> contendo pelo menos: <strong>1 maiúscula</strong>, <strong>1 minúscula</strong>, <strong>1 número</strong> e <strong>1 caractere especial</strong>. Usa gerador criptograficamente seguro (<code>crypto.getRandomValues</code>).</p>
 
     <div class="row" role="group" aria-label="Gerar e copiar senha">
       <div class="output" aria-live="polite">
@@ -112,7 +112,7 @@
       const DIGIT = "0123456789";
       const SPECIAL = "!@#$%^&*()-_=+[]{};:,.?";
       const ALL = UPPER + LOWER + DIGIT + SPECIAL;
-      const LENGTH = 12; // conforme requisito
+      const LENGTH = 18; // conforme requisito
 
       const $pwd = document.getElementById('password');
       const $copy = document.getElementById('copyBtn');
